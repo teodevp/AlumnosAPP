@@ -1,27 +1,18 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="AlumnosAPP.Vistas.AgregarEstudiante"
-             Title="Agregar Estudiante">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="AlumnosAPP.Vistas.AgregarEstudiante">
 
-    <VerticalStackLayout Padding="10">
-        <!-- Label de bienvenida, puedes quitarlo si no lo necesitas -->
-        <Label 
-            Text="Bienvenido a la página de Agregar Estudiante"
-            VerticalOptions="Center"
-            HorizontalOptions="Center" />
-
-        <!-- Entradas de texto para ingresar los datos del estudiante -->
-        <Entry x:Name="nombreEntry" Placeholder="Nombre Completo" />
-        <Entry x:Name="correoEntry" Placeholder="Correo Electrónico" />
+    <StackLayout Padding="10">
+        <!-- Campos de entrada para la información del estudiante -->
+        <Entry x:Name="nombreEntry" Placeholder="Nombre" />
+        <Entry x:Name="correoEntry" Placeholder="Correo" />
         <Entry x:Name="edadEntry" Placeholder="Edad" Keyboard="Numeric" />
         <Entry x:Name="cursoEntry" Placeholder="Curso" />
-
-        <!-- Switch para determinar si el estudiante está activo -->
         <Switch x:Name="activoSwitch" />
-        <Label Text="Activo" VerticalOptions="Center" />
+        <Label Text="Activo" />
 
         <!-- Botón para guardar el estudiante -->
         <Button Text="Guardar" Clicked="OnSaveButtonClicked" />
-    </VerticalStackLayout>
+    </StackLayout>
 </ContentPage>

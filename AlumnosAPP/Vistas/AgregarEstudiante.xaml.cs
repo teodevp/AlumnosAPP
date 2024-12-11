@@ -1,66 +1,49 @@
+using static AlumnosAPP.RegistroAlumnos.Modelos;
+
 namespace AlumnosAPP.Vistas
 {
     public partial class AgregarEstudiante : ContentPage
     {
-        // Definir los controles de la UI
-        Entry nombreEntry;
-        Entry correoEntry;
-        Entry edadEntry;
-        Entry cursoEntry;
-        Switch activoSwitch;
+        // Evento para notificar cuando se agrega un estudiante
+        public event EventHandler<Estudiante> StudentAdded;
 
         public AgregarEstudiante()
         {
             InitializeComponent();
-
-            // Inicializar los controles si no se inicializan en XAML
-            nombreEntry = new Entry { Placeholder = "Nombre Completo" };
-            correoEntry = new Entry { Placeholder = "Correo Electrónico" };
-            edadEntry = new Entry { Placeholder = "Edad", Keyboard = Keyboard.Numeric };
-            cursoEntry = new Entry { Placeholder = "Curso" };
-            activoSwitch = new Switch();
-
-            // Agregar controles al layout
-            Content = new StackLayout
-            {
-                Children = {
-                    nombreEntry,
-                    correoEntry,
-                    edadEntry,
-                    cursoEntry,
-                    activoSwitch,
-                    new Label { Text = "Activo", VerticalOptions = LayoutOptions.Center },
-                    new Button { Text = "Guardar", Command = new Command(OnSaveButtonClicked) }
-                }
-            };
         }
 
-        private void InitializeComponent()
+        // Método que maneja el evento de guardar un estudiante
+        private void OnSaveButtonClicked(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
-        }
+            // Obtener los valores de los controles de entrada
+            string nombre = nombreEntry.Text;
+            string correo = correoEntry.Text;
+            int edad = int.TryParse(edadEntry.Text, out int edadResultado) ? edadResultado : 0;
+            string curso = cursoEntry.Text;
+            bool activo = activoSwitch.IsToggled;
 
-        private async void OnSaveButtonClicked()
-        {
-            // Crear un nuevo estudiante con los datos de los controles
-            var newStudent = new Estudiante
+            // Verificar si los valores son válidos
+            if (string.IsNullOrEmpty(nombre) || string.IsNullOrEmpty(correo) || edad <= 0 || string.IsNullOrEmpty(curso))
             {
-                Nombre = nombreEntry.Text,
-                Correo = correoEntry.Text,
-                Edad = int.TryParse(edadEntry.Text, out int edad) ? edad : 0,
-                Curso = cursoEntry.Text,
-                Activo = activoSwitch.IsToggled
-            };
-
-            // Lógica para agregar el estudiante a la lista
-            if (Navigation.NavigationStack.Count > 1)
-            {
-                var listarAlumnosPage = (ListarAlumnos)Navigation.NavigationStack[Navigation.NavigationStack.Count - 2];
-                listarAlumnosPage.AddStudent(newStudent);
+                DisplayAlert("Error", "Por favor, completa todos los campos correctamente.", "OK");
+                return;
             }
 
-            // Regresar a la página anterior
-            await Navigation.PopAsync();
+            // Crear un nuevo estudiante con los valores capturados
+            var newStudent = new Estudiante
+            {
+                Nombre = nombre,
+                Correo = correo,
+                Edad = edad,
+                Curso = curso,
+                Activo = activo
+            };
+
+            // Disparar el evento para pasar el nuevo estudiante a la página de listado
+            StudentAdded?.Invoke(this, newStudent);
+
+            // Volver a la página anterior
+            Navigation.PopAsync();
         }
     }
 }
