@@ -1,23 +1,65 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="AlumnosAPP.ListarAlumnos">
+             x:Class="AlumnosAPP.Vistas.ListarAlumnos"
+             BackgroundColor="#F1F1F1">
 
-    <StackLayout Padding="10">
-        <SearchBar x:Name="searchBar" Placeholder="Buscar por nombre" TextChanged="OnSearchBarTextChanged" />
-        <CollectionView x:Name="studentsCollectionView">
+    <StackLayout Padding="15">
+        <Label Text="Lista de Estudiantes"
+               FontSize="24"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"
+               TextColor="#2C3E50" />
+
+        <SearchBar x:Name="searchBar"
+                   Placeholder="Buscar por nombre o correo"
+                   TextChanged="OnSearchBarTextChanged"
+                   Margin="0,20,0,10"
+                   BackgroundColor="#FFFFFF"
+                   TextColor="#34495E"
+                   PlaceholderColor="#BDC3C7"/>
+
+        <CollectionView x:Name="studentsCollectionView" 
+                        ItemsSource="{Binding FilteredStudents}" 
+                        SelectionMode="Single"
+                        Margin="0,0,0,20"
+                        SelectionChanged="OnStudentSelectionChanged">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <StackLayout>
-                        <Label Text="{Binding Nombre}" />
-                        <Label Text="{Binding Correo}" />
-                        <Label Text="{Binding Curso}" />
-                        <Label Text="{Binding Edad}" />
-                        <Label Text="{Binding Activo}" />
-                    </StackLayout>
+                    <Frame Padding="10"
+                           Margin="5"
+                           BorderColor="#BDC3C7"
+                           CornerRadius="8"
+                           BackgroundColor="White">
+                        <StackLayout Spacing="10">
+                            <Label Text="{Binding Nombre}" 
+                                   FontSize="18" 
+                                   FontAttributes="Bold"
+                                   TextColor="#2C3E50"/>
+                            <Label Text="{Binding Correo}" FontSize="14" TextColor="#7F8C8D"/>
+                            <Label Text="{Binding Curso}" FontSize="14" TextColor="#7F8C8D"/>
+                            <Label Text="{Binding Edad}" FontSize="14" TextColor="#7F8C8D"/>
+                            <Label Text="{Binding Activo}" FontSize="14" TextColor="#7F8C8D"/>
+
+                            <Button Text="Editar"
+                                    BackgroundColor="#f8214b"
+                                    TextColor="White"
+                                    CornerRadius="5"
+                                    Padding="10"
+                                    FontSize="14"
+                                    Clicked="OnEditStudentClicked"/>
+                        </StackLayout>
+                    </Frame>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-        <Button Text="Agregar Estudiante" Clicked="OnAddStudentClicked" />
+
+        <Button Text="Agregar Estudiante"
+                BackgroundColor="#28a745"
+                TextColor="White"
+                CornerRadius="5"
+                Padding="10"
+                FontSize="16"
+                Clicked="OnAddStudentClicked"/>
     </StackLayout>
 </ContentPage>

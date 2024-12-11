@@ -1,57 +1,106 @@
 using System.Collections.ObjectModel;
+using Microsoft.Maui.Controls;
+using static AlumnosAPP.RegistroAlumnos.Modelos;
 
-namespace AlumnosAPP
+namespace AlumnosAPP.Vistas
 {
     public partial class ListarAlumnos : ContentPage
     {
-        private List<Estudiante> estudiantes; // Usar el tipo correcto Estudiante
+        public ObservableCollection<Estudiante> FilteredStudents { get; set; }
+        private ObservableCollection<Estudiante> AllStudents { get; set; }
 
         public ListarAlumnos()
         {
             InitializeComponent();
-            estudiantes = new List<Estudiante>();  // Lista vacía de estudiantes
+            AllStudents = new ObservableCollection<Estudiante>();
+            FilteredStudents = new ObservableCollection<Estudiante>();
             BindingContext = this;
-            FilteredStudents = new ObservableCollection<Estudiante>(estudiantes);
         }
 
-        // Lista de estudiantes filtrados
-        public ObservableCollection<Estudiante> FilteredStudents { get; set; }
-
-        // Evento para el cambio de texto en la barra de búsqueda
-        private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
+        public void AddStudent(Estudiante newStudent)
         {
-            var searchText = e.NewTextValue.ToLower();
-            FilteredStudents.Clear();
+            AllStudents.Add(newStudent);
+            UpdateFilteredStudents();
+        }
 
-            // Filtra los estudiantes según el nombre o correo
-            foreach (var estudiante in estudiantes.Where(s => s.Nombre.ToString().ToLower().Contains(searchText) || s.Correo.ToLower().Contains(searchText)))
+        private void UpdateFilteredStudents()
+        {
+            FilteredStudents.Clear();
+            foreach (var student in AllStudents)
             {
-                FilteredStudents.Add(estudiante);
+                FilteredStudents.Add(student);
             }
         }
 
-        // Evento para el botón de agregar estudiante
+        private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
+        {
+            var searchText = e.NewTextValue.ToLower();
+            var filteredList = new ObservableCollection<Estudiante>();
+
+            foreach (var estudiante in AllStudents)
+            {
+                if (estudiante.Nombre.ToLower().Contains(searchText) || estudiante.Correo.ToLower().Contains(searchText))
+                {
+                    filteredList.Add(estudiante);
+                }
+            }
+
+            FilteredStudents.Clear();
+            foreach (var student in filteredList)
+            {
+                FilteredStudents.Add(student);
+            }
+        }
+
+        private async void OnStudentSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedStudent = e.CurrentSelection.FirstOrDefault() as Estudiante;
+
+            if (selectedStudent != null)
+            {
+                var agregarEstudiantePage = new AgregarEstudiante(selectedStudent);
+                agregarEstudiantePage.StudentUpdated += (s, updatedStudent) =>
+                {
+                    var index = AllStudents.IndexOf(selectedStudent);
+                    if (index >= 0)
+                    {
+                        AllStudents[index] = updatedStudent;
+                        UpdateFilteredStudents();
+                    }
+                };
+                await Navigation.PushAsync(agregarEstudiantePage);
+            }
+        }
+
         private async void OnAddStudentClicked(object sender, EventArgs e)
         {
-            // Navegar a la página de agregar estudiante
-            await Navigation.PushAsync(new AgregarEstudiante());
+            var agregarEstudiantePage = new AgregarEstudiante();
+            agregarEstudiantePage.StudentAdded += (s, newStudent) =>
+            {
+                AddStudent(newStudent);
+            };
+            await Navigation.PushAsync(agregarEstudiantePage);
         }
 
-        // Método para agregar estudiante
-        public void AddStudent(Estudiante newStudent)
+        private async void OnEditStudentClicked(object sender, EventArgs e)
         {
-            estudiantes.Add(newStudent);
-            FilteredStudents.Add(newStudent);
+            var button = sender as Button;
+            var student = button?.BindingContext as Estudiante;
+
+            if (student != null)
+            {
+                var agregarEstudiantePage = new AgregarEstudiante(student);
+                agregarEstudiantePage.StudentUpdated += (s, updatedStudent) =>
+                {
+                    var index = AllStudents.IndexOf(student);
+                    if (index >= 0)
+                    {
+                        AllStudents[index] = updatedStudent;
+                        UpdateFilteredStudents();
+                    }
+                };
+                await Navigation.PushAsync(agregarEstudiantePage);
+            }
         }
-    }
-
-    public class Estudiante
-    {
-        internal int Edad;
-        internal string Curso;
-        internal bool Activo;
-
-        public string Nombre { get; set; } // Cambiar el tipo a string
-        public string Correo { get; set; } // Agregar la propiedad Correo
     }
 }
